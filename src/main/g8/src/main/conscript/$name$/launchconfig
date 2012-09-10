@@ -1,0 +1,12 @@
+[app]
+  version: $version$
+  org: $organization$
+  name: $name$
+  class: $organization$.$name$.AppMain
+[scala]
+  version: $scala_version$
+[repositories]
+  local
+  scala-tools-releases
+  maven-central
+  asamioffice:http://www.asamioffice.com/maven
