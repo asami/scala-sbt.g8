@@ -5,51 +5,33 @@ import scalaz.{Resource => _, _}, Scalaz._
 import scalax.io._
 import scalax.file._
 
-class $name;format="Camel"$(val args: Array[String]) {
+class $name;format="Camel"$(val args: Array[String]) extends ScriptBase {
+  def commands = List("ls", "cat")
   var verbose: Boolean = false
   var directory: Option[String] = None
 
-  def run() {
-    catching(classOf[java.io.IOException]).withApply {
-      e => _error(e.getMessage)
-    } apply {
-      _run()
-    }
+  protected def application: PartialFunction[List[String], Unit] = {
+    case "ls" :: Nil => _ls()
+    case "cat" :: file :: Nil => _cat(file)
   }
 
-  private def _run() {
-    _parse_options(args.toList) match {
-      case "ls" :: Nil => _ls()
-      case "cat" :: file :: Nil => _cat(file)
-      case _ => _usage
-    }
-  }
-
-  private def _error(msg: String) {
-    Console.err.println(msg)
-  }
-
-  private def _parse_options(args: List[String]): List[String] = {
-    _parse_options(args, Nil)
-  }
-
-  private def _parse_options(in: List[String], out: List[String]): List[String] = {
+  protected def parse_Options(in: List[String], out: List[String]): List[String] = {
     in match {
       case Nil => out
       case "-verbose" :: rest => {
         verbose = true
-        _parse_options(rest, out)
+        parse_Options(rest, out)
       }
       case "-dir" :: arg :: rest => {
         directory = arg.some
-        _parse_options(rest, out)
+        parse_Options(rest, out)
       }
-      case arg :: rest => _parse_options(rest, out :+ arg)
+      case arg :: rest => parse_Options(rest, out :+ arg)
     }
   }
 
-  private def _usage {
-    println("usage: sample command args")
+  protected def usage_Command {
+    println("usage: $name$ args")
   }
 
   private def _ls() {
