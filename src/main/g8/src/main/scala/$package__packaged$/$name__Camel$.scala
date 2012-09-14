@@ -11,36 +11,36 @@ class $name;format="Camel"$(val args: Array[String]) extends ScriptBase {
   var directory: Option[String] = None
 
   protected def application: PartialFunction[List[String], Unit] = {
-    case "ls" :: Nil => _ls()
-    case "cat" :: file :: Nil => _cat(file)
+    case "ls" :: Nil => ls()
+    case "cat" :: file :: Nil => cat(file)
   }
 
-  protected def parse_Options(in: List[String], out: List[String]): List[String] = {
+  protected def parseOptions(in: List[String], out: List[String]): List[String] = {
     in match {
       case Nil => out
       case "-verbose" :: rest => {
         verbose = true
-        parse_Options(rest, out)
+        parseOptions(rest, out)
       }
       case "-dir" :: arg :: rest => {
         directory = arg.some
-        parse_Options(rest, out)
+        parseOptions(rest, out)
       }
-      case arg :: rest => parse_Options(rest, out :+ arg)
+      case arg :: rest => parseOptions(rest, out :+ arg)
     }
   }
 
-  protected def usage_Command {
+  protected def usageCommand {
     println("usage: $name$ args")
   }
 
-  private def _ls() {
+  def ls() {
     for (path <- Path(directory | ".").children("[^.]*", nil)) {
       println(path.name)
     }
   }
 
-  private def _cat(file: String) {
+  def cat(file: String) {
     println(Resource.fromFile(file).string)
   }
 }

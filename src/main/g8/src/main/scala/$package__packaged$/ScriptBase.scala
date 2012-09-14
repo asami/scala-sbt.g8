@@ -6,30 +6,30 @@ trait ScriptBase {
   val args: Array[String]
   def commands: List[String]
 
-  protected def parse_Options(in: List[String], out: List[String]): List[String]
+  protected def parseOptions(in: List[String], out: List[String]): List[String]
   protected def application: PartialFunction[List[String], Unit]
-  protected def usage_Command: Unit
+  protected def usageCommand: Unit
 
   protected def system: PartialFunction[List[String], Unit] = {
     case Nil => usage
     case _ => {
-      output_error("Illegal command %s".format(args(0)))
+      outputError("Illegal command %s".format(args(0)))
       usage
     }
   }
 
   def run() {
     catching(classOf[java.io.IOException]).withApply {
-      e => output_error(e.getMessage)
+      e => outputError(e.getMessage)
     } apply {
-      run_body()
+      runBody()
     }
   }
 
-  protected def run_body() {
-    normalize_command(parse_options(args.toList)) match {
+  protected def runBody() {
+    normalizeCommand(parseOptions(args.toList)) match {
       case Left(candidates) => {
-        output_error("Ambiguity command %s against %s.".format(args(0), commands.mkString(", ")))
+        outputError("Ambiguity command %s against %s.".format(args(0), commands.mkString(", ")))
       }
       case Right(rargs) => {
         (application orElse system)(rargs)
@@ -37,18 +37,18 @@ trait ScriptBase {
     }
   }
 
-  protected def output_error(msg: String) {
+  protected def outputError(msg: String) {
     Console.err.print(Console.YELLOW_B)
     Console.err.print(Console.RED)
     Console.err.print(msg)
     Console.err.println(Console.RESET)
   }
 
-  protected def parse_options(args: List[String]): List[String] = {
-    parse_Options(args, Nil)
+  protected def parseOptions(args: List[String]): List[String] = {
+    parseOptions(args, Nil)
   }
 
-  protected def normalize_command(args: List[String]): Either[List[String], List[String]] = {
+  protected def normalizeCommand(args: List[String]): Either[List[String], List[String]] = {
     if (args.isEmpty) Right(Nil)
     else {
       val arg0 = args(0).toLowerCase()
@@ -61,6 +61,6 @@ trait ScriptBase {
   }
 
   def usage {
-    usage_Command
+    usageCommand
   }
 }
